@@ -1,6 +1,11 @@
-var http = require('http');
-http.createServer(function (req, res) {
-    console.log(`Just got a request at ${req.url}!`)
-    res.write('Yo!');
-    res.end();
-}).listen(process.env.PORT || 3000);
+const express = require("express");
+const app = express();
+app.use(express.json());
+
+app.use("/", async (req, res) => {
+  res.json({ status: true });
+});
+
+app.listen(process.env.PORT || 3000, () => {
+  console.log("Listening on port : " + process.env.PORT || 3000);
+});
