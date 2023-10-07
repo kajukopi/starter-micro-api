@@ -6,7 +6,6 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/", async (req, res) => {
-  console.log(req.headers);
   res.json({ status: true });
 });
 
