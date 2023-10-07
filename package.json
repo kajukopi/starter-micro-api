@@ -4,10 +4,11 @@
   "description": "Cyclic.sh micro api starter",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "node index.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "env-cmd": "^10.1.0"
   }
 }
