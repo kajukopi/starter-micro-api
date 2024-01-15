@@ -6,7 +6,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/", async (req, res) => {
-  res.json({ status: true });
+  res.json({ status: true, data: "Hello world!" });
 });
 
 app.listen(process.env.PORT || 3000, () => {
