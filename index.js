@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const port = 3000;
+const cors = require("cors");
 
 // Google Spread Sheets
 const { GoogleSpreadsheet } = require("google-spreadsheet");
