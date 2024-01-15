@@ -25,7 +25,8 @@ router.get("/:sheet", async (req, res) => {
 router.post("/:sheet", async (req, res) => {
   const sheet = req.params.sheet;
   const body = req.body;
-  console.log(body);
+  console.log(Object.values(body));
+  console.log(Object.keys(body));
   gs.createSheet(sheet, ["name", "email"])
     .then((result) => {
       res.json({ status: true, result });
