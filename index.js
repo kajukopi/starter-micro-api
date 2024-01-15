@@ -2,6 +2,17 @@ const express = require("express");
 const app = express();
 const port = 3000;
 
+// Google Spread Sheets
+const { GoogleSpreadsheet } = require("google-spreadsheet");
+const { JWT } = require("google-auth-library");
+const serviceAccountAuth = new JWT({
+  email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+  key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+  scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+});
+const doc = new GoogleSpreadsheet(process.env.GOOGLE_SPREADSHEET_ID, serviceAccountAuth);
+// console.log(process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"));
+
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -59,6 +70,6 @@ app.delete("/api/items/:id", (req, res) => {
 });
 
 // Server listening
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+app.listen(process.env.PORT || 3000, () => {
+  console.log(`Server is running on http://localhost`);
 });
