@@ -1,0 +1,32 @@
+<section class="my-5 container">
+  <form data-mdb-form style="width: 26rem;">
+    <!-- Name input -->
+    <div class="form-outline mb-4">
+      <input type="text" id="inputName" name="name" class="form-control" required />
+      <label class="form-label" for="inputName">Name</label>
+    </div>
+
+    <!-- Email input -->
+    <div class="form-outline mb-4">
+      <input type="email" id="inputEmail" name="email" class="form-control" required />
+      <label class="form-label" for="inputEmail">Email address</label>
+    </div>
+
+    <!-- Message input -->
+    <div class="form-outline mb-4">
+      <textarea name="message" class="form-control" required id="inputMessage" rows="4"></textarea>
+      <label class="form-label" for="inputMessage">Message</label>
+    </div>
+
+    <!-- Checkbox -->
+    <div class="form-check d-flex justify-content-center mb-4">
+      <input class="form-check-input me-2" type="checkbox" value="remember" id="rememberMe" checked />
+      <label class="form-check-label" for="rememberMe">
+        Send me a copy of this message
+      </label>
+    </div>
+
+    <!-- Submit button -->
+    <button type="submit" class="btn btn-primary btn-block mb-4">Send</button>
+  </form>
+</section>
