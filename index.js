@@ -20,18 +20,13 @@ app.use(cookieParser());
 
 const whitelist = ["http://localhost:3000", "http://localhost:5000", "https://teamkece.com"];
 
-const corsOptions = {
-  credentials: true,
-  origin: function (origin, callback) {
-    if (whitelist.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-};
-
-app.use(cors());
+// Allow requests only from 'https://teamkece.com'
+app.use(
+  cors({
+    origin: "https://teamkece.com",
+    credentials: true, // enable set cookie with credentials
+  })
+);
 
 app.use("/api", require("./router/api"));
 
@@ -40,5 +35,5 @@ app.use("/users", require("./router/users"));
 app.use("/status", require("./router/status"));
 
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost${port}`);
+  console.log(`Server is running on port: ${port}`);
 });
