@@ -32,7 +32,7 @@ router.post("/login", async (req, res) => {
     const sheet = doc.sheetsByTitle["users"];
     const rows = await sheet.getRows();
     const find = gsToFind(rows, body.email);
-    if (find === null) res.json({ status: false, data: "Data not exist!" });
+    if (find === null) throw "Data tidak valid!";
     const id = rows[find].get("id");
     const email = rows[find].get("email");
     const password = rows[find].get("password");
