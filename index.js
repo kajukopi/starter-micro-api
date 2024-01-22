@@ -35,7 +35,6 @@ const corsOptions = {
       callback(new Error("Not allowed by CORS"));
     }
   },
-  credentials: false, // Do not include credentials in the CORS request
 };
 
 app.use(cors(corsOptions));
