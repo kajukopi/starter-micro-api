@@ -6,6 +6,7 @@ const upload = multer({ storage: storage });
 const bcrypt = require("bcrypt");
 const ShortUniqueId = require("short-unique-id");
 const uid = new ShortUniqueId({ length: 10 });
+const bearer = new ShortUniqueId({ length: 100 });
 const { drive, doc } = require("../auth");
 const saltRounds = 10;
 
@@ -33,14 +34,13 @@ router.post("/login", async (req, res) => {
     const rows = await sheet.getRows();
     const find = gsToFind(rows, body.email);
     if (find === null) throw "Data tidak valid!";
-    const id = rows[find].get("id");
-    const email = rows[find].get("email");
     const password = rows[find].get("password");
     const verify = await bcrypt.compare(body.password, password);
     if (!verify) throw "Email & Password salah!";
-    rows[find].assign({ last_login: new Date().toISOString() });
+    const token = bearer.rnd();
+    rows[find].assign({ last_login: new Date().toISOString(), token });
     await rows[find].save();
-    res.json({ status: true, data: { name: body.name, email, id } });
+    res.json({ status: true, data: { token } });
   } catch (error) {
     res.json({ status: false, error });
   }
