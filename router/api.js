@@ -1,66 +1,74 @@
 const express = require("express");
 const router = express.Router();
-const gs = require("../gs");
 const multer = require("multer");
-
-router.get("/:sheet", async (req, res) => {
-  const sheet = req.params.sheet;
-  gs.loadSheet(sheet)
-    .then((result) => {
-      const header = result[0]._worksheet._headerValues;
-      const body = [];
-      for (let i = 0; i < result.length; i++) {
-        const element = result[i]._rawData;
-        body.push(element);
-      }
-      res.json({ status: true, header, body });
-    })
-    .catch((error) => {
-      console.log(error);
-      res.json({ status: false });
-    });
-});
-
-router.post("/create/:sheet", async (req, res) => {
-  console.log(req.body);
-  gs.createSheet(req.params.sheet, Object.keys(req.body))
-    .then((result) => {
-      if (result.length === 0) return res.json({ status: true, header: Object.keys(req.body), body: [] });
-      const header = result[0]._worksheet._headerValues;
-      const body = [];
-      for (let i = 0; i < result.length; i++) {
-        const element = result[i]._rawData;
-        body.push(element);
-      }
-      res.json({ status: true, header, body });
-    })
-    .catch((error) => {
-      console.log(error);
-      res.json({ status: false });
-    });
-});
-
-router.post("/push/:sheet", async (req, res) => {
-  const sheet = req.params.sheet;
-  const body = req.body;
-  console.log(body);
-  gs.push(sheet, body)
-    .then((result) => {
-      const header = result._worksheet._headerValues;
-      const body = result._rawData;
-      res.json({ status: true, header, body });
-    })
-    .catch((error) => {
-      console.log(error);
-      res.json({ status: false });
-    });
-});
-
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
+const bcrypt = require("bcrypt");
+const ShortUniqueId = require("short-unique-id");
+const uid = new ShortUniqueId({ length: 10 });
+const { drive, doc } = require("../auth");
+
+router.get("/:title", async (req, res) => {
+  try {
+    const title = req.params.title;
+    await doc.loadInfo();
+    const sheet = doc.sheetsByTitle[title];
+    const rows = await sheet.getRows();
+    if (rows.length === 0) res.json({ status: true, data: [], length: 0 });
+    res.json({ status: true, data: gsToArray(rows, req), length: rows.length });
+  } catch (error) {
+    res.json({ status: false, error });
+  }
+});
+
+router.post("/:title", async (req, res) => {
+  try {
+    const title = req.params.title;
+    const body = req.body;
+    await doc.loadInfo();
+    const sheet = doc.sheetsByTitle[title];
+    const id = uid.rnd();
+    await sheet.addRow({ ...body, id });
+    res.json({ status: true, data: { ...body, id } });
+  } catch (error) {
+    res.json({ status: false });
+  }
+});
+
+router.delete("/:title/:id", async (req, res) => {
+  try {
+    const title = req.params.title;
+    const body = req.body;
+    const id = req.params.id;
+    await doc.loadInfo();
+    const sheet = doc.sheetsByTitle[title];
+    const rows = await sheet.getRows();
+    rows[gsToFind(rows, id)].delete();
+    res.json({ status: true });
+  } catch (error) {
+    res.json({ status: false });
+  }
+});
+
+router.put("/:title/:id", async (req, res) => {
+  try {
+    const title = req.params.title;
+    const body = req.body;
+    const id = req.params.id;
+    await doc.loadInfo();
+    const sheet = doc.sheetsByTitle[title];
+    const rows = await sheet.getRows();
+    rows[gsToFind(rows, id)].assign(body);
+    await rows[gsToFind(rows, id)].save();
+    res.json({ status: true });
+  } catch (error) {
+    console.log(error);
+    res.json({ status: false });
+  }
+});
 
 // File upload endpoint
-router.post("/upload/:sheet", upload.single("file"), async (req, res) => {
+router.post("/upload/:title", upload.single("file"), async (req, res) => {
   const fileData = req.file;
   if (!fileData) {
     return res.status(400).send("No file uploaded.");
@@ -84,7 +92,7 @@ router.post("/upload/:sheet", upload.single("file"), async (req, res) => {
 
     // const fileId = response.data.id;
 
-    // // Inserting a link to the image in the Google Sheets
+    // // Inserting a link to the image in the Google titles
     // const spreadsheetId = "YOUR_SPREADSHEET_ID";
     // const sheetName = "Sheet1"; // Modify as per your sheet name
     // const range = `${sheetName}!A1`;
@@ -106,4 +114,45 @@ router.post("/upload/:sheet", upload.single("file"), async (req, res) => {
     res.status(500).send("Error uploading file.");
   }
 });
+
+function gsToArray(rows, req) {
+  const header = rows[0]._worksheet._headerValues;
+  const body = [];
+  for (let i = 0; i < rows.length; i++) {
+    body.push(rows[i]._rawData);
+  }
+
+  const page = parseInt(req.query.page) || 1;
+  const pageSize = parseInt(req.query.pageSize) || rows.length;
+
+  const startIndex = (page - 1) * pageSize;
+  const endIndex = page * pageSize;
+
+  const itemsForPage = body.slice(startIndex, endIndex);
+
+  // console.log(itemsForPage);
+
+  return { header, body: itemsForPage };
+}
+
+function gsToFind(rows, id) {
+  let find = null;
+  for (let i = 0; i < rows.length; i++) {
+    const element = rows[i];
+    if (element.get("id") === id) find = i;
+  }
+  return find;
+}
+
+// const saltRounds = 10;
+// const myPlaintextPassword = "team_keces0//P4$$w0rD";
+// const someOtherPlaintextPassword = "team_kece";
+// let hashPassword = "$2b$10$RIwie7BNdzjXIOu5oEmbQ./CMfg8sV4EnisdP7O7SYVADNHenSGYC";
+// (async () => {
+//   const one = await bcrypt.hash(myPlaintextPassword, saltRounds);
+//   const two = await bcrypt.compare(myPlaintextPassword, hashPassword);
+//   const three = await bcrypt.compare(someOtherPlaintextPassword, hashPassword);
+//   console.log(one, two, three);
+// })();
+
 module.exports = router;

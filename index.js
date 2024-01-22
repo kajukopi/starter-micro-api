@@ -6,34 +6,30 @@ const express = require("express");
 
 const app = express();
 
-const { engine } = require("express-handlebars");
-
 const port = process.env.PORT || 3000;
-
-app.engine(".hbs", engine({ extname: ".hbs" }));
-
-app.set("view engine", ".hbs");
-
-app.set("views", "./views");
-
-app.enable("view cache");
 
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
 
-app.use(express.static("assets"));
-
 const cors = require("cors");
+const whitelist = ["http://localhost:3000", "http://localhost:5000"];
 
-app.use(cors());
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+};
 
-// Routes
+app.use(cors(corsOptions));
+
 app.use("/api", require("./router/api"));
+app.use("/users", require("./router/users"));
 
-app.use("/", require("./router/index"));
-
-// Server listening
 app.listen(port, () => {
   console.log(`Server is running on http://localhost${port}`);
 });
