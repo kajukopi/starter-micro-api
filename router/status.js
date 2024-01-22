@@ -10,11 +10,7 @@ router.get("/", async (req, res) => {
     const sheet = doc.sheetsByTitle["users"];
     const rows = await sheet.getRows();
     const find = gsToFind(rows, cookies.email);
-    const targetDate = new Date(rows[find].get("last_login"));
-    const currentDate = new Date();
-    const timeDifference = currentDate.getTime() - targetDate.getTime();
-    const hoursDifference = timeDifference / (1000 * 60 * 60);
-    console.log("Hours difference:", hoursDifference);
+    console.log(find);
     res.json({ status: true });
   } catch (error) {
     res.json({ status: false, error });

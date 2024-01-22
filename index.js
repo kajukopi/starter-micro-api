@@ -18,15 +18,21 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cookieParser());
 
-const whitelist = ["http://localhost:3000", "http://localhost:5000", "https://teamkece.com"];
+const whitelist = ["http://localhost", "https://teamkece.com"];
 
-// Allow requests only from 'https://teamkece.com'
-app.use(
-  cors({
-    origin: "https://teamkece.com",
-    credentials: true, // enable set cookie with credentials
-  })
-);
+// Set up cors options
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: false, // Do not include credentials in the CORS request
+};
+
+app.use(cors(corsOptions));
 
 app.use("/api", require("./router/api"));
 
