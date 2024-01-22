@@ -4,7 +4,7 @@
   "description": "Cyclic.sh micro api starter",
   "main": "index.js",
   "scripts": {
-    "dev": "env-cmd nodemon index.js -e js",
+    "dev": "env-cmd nodemon index.js",
     "repl": "env-cmd node index.js"
   },
   "author": "",
