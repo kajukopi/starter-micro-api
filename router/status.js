@@ -3,7 +3,7 @@ const router = express.Router();
 const { drive, doc } = require("../auth");
 
 router.get("/", async (req, res) => {
-  console.log(req);
+  console.log(req.rawHeaders);
   try {
     const cookies = JSON.parse(req.cookies.user);
     await doc.loadInfo();
