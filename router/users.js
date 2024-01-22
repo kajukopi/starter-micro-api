@@ -26,8 +26,11 @@ router.post("/register", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
+  const sessionValue = req.session.exampleSession || "No session set";
+  console.log(sessionValue);
   try {
     const body = req.body;
+    req.session.exampleSession = body.email;
     await doc.loadInfo();
     const sheet = doc.sheetsByTitle["users"];
     const rows = await sheet.getRows();

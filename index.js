@@ -6,6 +6,8 @@ const express = require("express");
 
 const app = express();
 
+const session = require("express-session");
+
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
@@ -13,7 +15,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const cors = require("cors");
-const whitelist = ["http://localhost:3000", "http://localhost:5000"];
+const whitelist = ["http://localhost:3000", "http://localhost:5000", "https://teamkece.com"];
 
 const corsOptions = {
   origin: function (origin, callback) {
@@ -26,6 +28,18 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+app.use(
+  session({
+    secret: "your-secret-key",
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      secure: false, // Set to true if your server is running on HTTPS
+      maxAge: 60000, // Session duration in milliseconds (e.g., 1 minute)
+    },
+  })
+);
 
 app.use("/api", require("./router/api"));
 app.use("/users", require("./router/users"));
