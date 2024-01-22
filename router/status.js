@@ -9,6 +9,7 @@ router.get("/", async (req, res) => {
     const sheet = doc.sheetsByTitle["users"];
     const rows = await sheet.getRows();
     const find = gsToFind(rows, token[0].split(" ")[1]);
+    if (!find) throw "Silahkan login terlebih dahulu!";
     res.json({ status: true, data: rows[find].get("email") });
   } catch (error) {
     res.json({ status: false, error });
