@@ -26,11 +26,8 @@ router.post("/register", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
-  const sessionValue = req.session.exampleSession || "No session set";
-  console.log(sessionValue);
   try {
     const body = req.body;
-    req.session.exampleSession = body.email;
     await doc.loadInfo();
     const sheet = doc.sheetsByTitle["users"];
     const rows = await sheet.getRows();
@@ -41,7 +38,9 @@ router.post("/login", async (req, res) => {
     const password = rows[find].get("password");
     const verify = await bcrypt.compare(body.password, password);
     if (!verify) throw "Email & Password salah!";
-    res.json({ status: true, data: { username: body.name, email, id } });
+    rows[find].assign({ last_login: new Date().toISOString() });
+    await rows[find].save();
+    res.json({ status: true, data: { name: body.name, email, id } });
   } catch (error) {
     res.json({ status: false, error });
   }
@@ -75,15 +74,5 @@ function gsToFind(rows, email) {
   }
   return find;
 }
-
-// const myPlaintextPassword = "team_keces0//P4$$w0rD";
-// const someOtherPlaintextPassword = "team_kece";
-// let hashPassword = "$2b$10$RIwie7BNdzjXIOu5oEmbQ./CMfg8sV4EnisdP7O7SYVADNHenSGYC";
-// (async () => {
-//   const one = await bcrypt.hash(myPlaintextPassword, saltRounds);
-//   const two = await bcrypt.compare(myPlaintextPassword, hashPassword);
-//   const three = await bcrypt.compare(someOtherPlaintextPassword, hashPassword);
-//   console.log(one, two, three);
-// })();
 
 module.exports = router;

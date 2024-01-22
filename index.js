@@ -4,9 +4,11 @@ require("dot-env");
 
 const express = require("express");
 
-const app = express();
+const cors = require("cors");
 
-const session = require("express-session");
+const cookieParser = require("cookie-parser");
+
+const app = express();
 
 const port = process.env.PORT || 3000;
 
@@ -14,10 +16,12 @@ app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
 
-const cors = require("cors");
+app.use(cookieParser());
+
 const whitelist = ["http://localhost:3000", "http://localhost:5000", "https://teamkece.com"];
 
 const corsOptions = {
+  credentials: true,
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1 || !origin) {
       callback(null, true);
@@ -29,20 +33,11 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.use(
-  session({
-    secret: "your-secret-key",
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-      secure: false, // Set to true if your server is running on HTTPS
-      maxAge: 60000, // Session duration in milliseconds (e.g., 1 minute)
-    },
-  })
-);
-
 app.use("/api", require("./router/api"));
+
 app.use("/users", require("./router/users"));
+
+app.use("/status", require("./router/status"));
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost${port}`);
