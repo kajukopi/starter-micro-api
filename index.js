@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cookieParser());
 
-const whitelist = ["http://localhost", "https://teamkece.com"];
+const whitelist = ["http://localhost", "https://teamkece.com", "https://www.teamkece.com", "www.teamkece.com"];
 
 // Set up cors options
 const corsOptions = {
