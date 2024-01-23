@@ -29,4 +29,16 @@ async function permission(req, res, next) {
   }
 }
 
-module.exports = { drive, doc, permission };
+async function createSheet(title, headerValues) {
+  try {
+    await doc.loadInfo();
+    const sheet = doc.sheetsByTitle[title];
+    if (sheet) throw "Sheet already exist";
+    const newSheet = await doc.addSheet({ title, headerValues });
+    return newSheet;
+  } catch (error) {
+    return { error };
+  }
+}
+
+module.exports = { drive, doc, permission, createSheet };

@@ -3,10 +3,9 @@ const router = express.Router();
 const multer = require("multer");
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
-const bcrypt = require("bcrypt");
 const ShortUniqueId = require("short-unique-id");
 const uid = new ShortUniqueId({ length: 10 });
-const { drive, doc, permission } = require("../auth");
+const { drive, doc, permission, createSheet } = require("../auth");
 
 router.get("/:title", async (req, res) => {
   try {
@@ -14,7 +13,7 @@ router.get("/:title", async (req, res) => {
     await doc.loadInfo();
     const sheet = doc.sheetsByTitle[title];
     const rows = await sheet.getRows();
-    if (rows.length === 0) res.json({ status: true, data: [], length: 0 });
+    if (rows.length === 0) return res.json({ status: true, data: [], length: 0 });
     res.json({ status: true, data: gsToArray(rows, req), length: rows.length });
   } catch (error) {
     res.json({ status: false, error });
@@ -29,9 +28,21 @@ router.post("/:title", async (req, res) => {
     const sheet = doc.sheetsByTitle[title];
     const id = uid.rnd();
     await sheet.addRow({ ...body, id });
+    if (title === "rundown")
+      await createSheet(id, [
+        "summary",
+        "description",
+        "start_date",
+        "end_date",
+        "start_datetime",
+        "end_datetime",
+        "color_background",
+        "color_foreground",
+      ]);
     res.json({ status: true, data: { ...body, id } });
   } catch (error) {
-    res.json({ status: false });
+    res.json({ status: false, error });
+    console.log(error);
   }
 });
 
@@ -143,16 +154,5 @@ function gsToFind(rows, id) {
   }
   return find;
 }
-
-// const saltRounds = 10;
-// const myPlaintextPassword = "team_keces0//P4$$w0rD";
-// const someOtherPlaintextPassword = "team_kece";
-// let hashPassword = "$2b$10$RIwie7BNdzjXIOu5oEmbQ./CMfg8sV4EnisdP7O7SYVADNHenSGYC";
-// (async () => {
-//   const one = await bcrypt.hash(myPlaintextPassword, saltRounds);
-//   const two = await bcrypt.compare(myPlaintextPassword, hashPassword);
-//   const three = await bcrypt.compare(someOtherPlaintextPassword, hashPassword);
-//   console.log(one, two, three);
-// })();
 
 module.exports = router;
