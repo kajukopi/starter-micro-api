@@ -6,7 +6,7 @@ const upload = multer({ storage: storage });
 const bcrypt = require("bcrypt");
 const ShortUniqueId = require("short-unique-id");
 const uid = new ShortUniqueId({ length: 10 });
-const { drive, doc } = require("../auth");
+const { drive, doc, permission } = require("../auth");
 
 router.get("/:title", async (req, res) => {
   try {
@@ -50,7 +50,7 @@ router.delete("/:title/:id", async (req, res) => {
   }
 });
 
-router.put("/:title/:id", async (req, res) => {
+router.put("/:title/:id", permission, async (req, res) => {
   try {
     const title = req.params.title;
     const body = req.body;

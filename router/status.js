@@ -10,7 +10,7 @@ router.get("/", async (req, res) => {
     const rows = await sheet.getRows();
     const find = gsToFind(rows, token[0].split(" ")[1]);
     if (!find) throw "Silahkan login terlebih dahulu!";
-    res.json({ status: true, data: rows[find].get("email") });
+    res.json({ status: true, data: { email: rows[find].get("email"), name: rows[find].get("name") } });
   } catch (error) {
     res.json({ status: false, error });
   }
