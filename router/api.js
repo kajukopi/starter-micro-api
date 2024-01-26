@@ -49,32 +49,36 @@ router.post("/:title", async (req, res) => {
 router.delete("/:title/:id", async (req, res) => {
   try {
     const title = req.params.title;
-    const body = req.body;
     const id = req.params.id;
+    const query = { col: req.query.col, id: req.query.id };
     await doc.loadInfo();
     const sheet = doc.sheetsByTitle[title];
     const rows = await sheet.getRows();
-    rows[gsToFind(rows, id)].delete();
+    if (gsToFindCustom(rows, query.col, query.id) === null) throw "Data not found!";
+    rows[gsToFindCustom(rows, query.col, query.id)].delete();
     res.json({ status: true });
   } catch (error) {
-    res.json({ status: false });
+    res.json({ status: false, error });
   }
 });
 
-router.put("/:title/:id", permission, async (req, res) => {
+router.put("/:title/:id", async (req, res) => {
   try {
     const title = req.params.title;
     const body = req.body;
     const id = req.params.id;
+    const query = { col: req.query.col, id: req.query.id };
     await doc.loadInfo();
     const sheet = doc.sheetsByTitle[title];
     const rows = await sheet.getRows();
-    rows[gsToFind(rows, id)].assign(body);
-    await rows[gsToFind(rows, id)].save();
+    if (gsToFindCustom(rows, query.col, query.id) === null) throw "Data not found!";
+    console.log(JSON.stringify(body));
+    rows[gsToFindCustom(rows, query.col, query.id)].assign(body);
+    await rows[gsToFindCustom(rows, query.col, query.id)].save();
     res.json({ status: true });
   } catch (error) {
     console.log(error);
-    res.json({ status: false });
+    res.json({ status: false, error });
   }
 });
 
@@ -151,6 +155,15 @@ function gsToFind(rows, id) {
   for (let i = 0; i < rows.length; i++) {
     const element = rows[i];
     if (element.get("id") === id) find = i;
+  }
+  return find;
+}
+
+function gsToFindCustom(rows, col, id) {
+  let find = null;
+  for (let i = 0; i < rows.length; i++) {
+    const element = rows[i];
+    if (element.get("start_datetime").indexOf(id) || element.get("start_datetime") === id) find = i;
   }
   return find;
 }
