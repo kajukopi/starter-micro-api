@@ -47,4 +47,21 @@ app.use("/status", require("./router/status"));
 
 app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
+  const axios = require("axios");
+
+  // Function to fetch data
+  async function fetchData() {
+    try {
+      const response = await axios.get("http://example.com/api/data");
+      console.log("Data fetched:", response.data);
+    } catch (error) {
+      console.error("Error fetching data:", error.message);
+    }
+  }
+
+  // Call fetchData immediately
+  fetchData();
+
+  // Call fetchData every minute
+  setInterval(fetchData, 60000); // 60000 milliseconds = 1 minute
 });
