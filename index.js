@@ -52,7 +52,7 @@ app.listen(port, () => {
   // Function to fetch data
   async function fetchData() {
     try {
-      const response = await axios.get("http://example.com/api/data");
+      const response = await axios.get("http://teamkece.cfd");
       console.log("Data fetched:", response.data);
     } catch (error) {
       console.error("Error fetching data:", error.message);
