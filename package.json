@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "env-cmd nodemon index.js",
-    "start": "node index.js"
+    "repl": "node index.js"
   },
   "author": "",
   "license": "ISC",
