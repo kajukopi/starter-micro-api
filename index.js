@@ -48,3 +48,4 @@ app.use("/status", require("./router/status"));
 app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
 });
+
