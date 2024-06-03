@@ -24,6 +24,7 @@ const whitelist = [
   "https://teamkece.com",
   "https://www.teamkece.com",
   "www.teamkece.com",
+  "https://starter-micro-api-empx.onrender.com/"
 ];
 
 // Set up cors options
